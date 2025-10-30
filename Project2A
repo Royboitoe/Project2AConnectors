@@ -1,0 +1,211 @@
+# Project 2A - Melbourne Housing Dataset Cleaning Script
+# Team: The connectors | Members: Roberto Zaldana-Arguello, Chuks Ofojuah, Paul Wandera
+# Title: B-Tree vs. Red-Black Trees for Data Indexing
+# Focus: End-to-end dataset cleaning to support fast feature-based indexing and range queries
+# Dataset Source: https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market/data?select=Melbourne_housing_FULL.csv
+
+import pandas as pd
+import numpy as np
+import kagglehub
+import os
+
+path = kagglehub.dataset_download("anthonypino/melbourne-housing-market")
+input_path = os.path.join(path, "Melbourne_housing_FULL.csv")
+output_path = 'melbourne_housing_clean_project2A.csv'
+
+core_cols = ['Price','rooms','Type','Buildingarea','Distance']
+
+
+def standardize_string(df):
+    # strip whitespace and standardize string columns
+    obj_cols = df.select_dtypes(include=['object']).columns.tolist()
+    for c in obj_cols:
+        df[c] = df[c].astype(str).str.strip()
+    if 'Suburb' in df.columns:
+        df['Suburb'] = df['Suburb'].str.title()
+    if 'Address' in df.columns:
+        df['Address'] = df['Address'].str.title()
+    if 'councilarea' in df.columns:
+        df['councilarea'] = df['councilarea'].str.title()
+    if 'Regionname' in df.columns:
+        df['Regionname'] = df['Regionname'].str.title()
+    return df
+
+def date_time(df):
+    # covert date column to datetime type
+    if 'Date' in df.columns:
+        df['Date'] = pd.to_datetime(df['Date'], dayfirst=True, errors='coerce')
+    return df
+
+def typecast_numeric(df):
+    # type cast numeric columns for computations
+    numeric_candidates = ['Price','rooms','Bedroom2','Bathroom','Car','Distance','Buildingarea','Landsize','Yearbuilt','Lattitude','Longitude','Postcode','propertycount']
+    for col in numeric_candidates:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    return df
+
+def standardize_type_values(df):
+    # standardize dwelling type abbreviations for readability and categorical consistency
+    if 'Type' in df.columns:
+        df['Type'] = df['Type'].str.lower().str.strip()
+        df['Type'] = df['Type'].replace({'h':'house','u':'unit','t':'townhouse'})
+        df['Type'] = df['Type'].where(df['Type'].isin(['house','unit','townhouse']), other='other')
+        df['Type'] = df['Type'].astype('category')
+    return df
+
+def remove_dupes(df):
+    # drop full duplicates and then deduplicate by Address and date keeping the latest Price if present
+    before = len(df)
+    df = df.drop_duplicates()
+    if 'Address' in df.columns and 'Date' in df.columns:
+        subset_cols = ['Address','Date']
+        if 'Price' in df.columns:
+            df = df.sort_values(by=['Address','Date','Price'], ascending=[True, True, False])
+            df = df.drop_duplicates(subset=subset_cols, keep='first')
+        else:
+            df = df.drop_duplicates(subset=subset_cols, keep='first')
+    after = len(df)
+    print(f'dropped_exact_duplicates: {before - after}')
+    return df
+
+def calculate_buildingarea(df):
+    # was going to drop buildingarea missing values but decided to calculate using median buildingarea by rooms and type, then Suburb
+    if 'Buildingarea' in df.columns:
+        mask_missing = df['Buildingarea'].isna() | (df['Buildingarea'] <= 0)
+        if mask_missing.any():
+            if 'rooms' in df.columns and 'Type' in df.columns:
+                group_median = df.groupby(['rooms','Type'], observed=True)['Buildingarea'].median()
+                df.loc[mask_missing, 'Buildingarea'] = df.loc[mask_missing].apply(lambda r: group_median.get((r.get('rooms'), r.get('Type')), np.nan), axis=1)
+            if 'Suburb' in df.columns:
+                still_missing = df['Buildingarea'].isna() | (df['Buildingarea'] <= 0)
+                Suburb_median = df.groupby('Suburb')['Buildingarea'].median()
+                df.loc[still_missing, 'Buildingarea'] = df.loc[still_missing, 'Suburb'].map(Suburb_median)
+    return df
+
+def calculate_distance(df):
+    # calculate missing distance using Suburb median distance
+    if 'Distance' in df.columns and 'Suburb' in df.columns:
+        missing_dist = df['Distance'].isna() | (df['Distance'] < 0)
+        if missing_dist.any():
+            sub_median = df.groupby('Suburb')['Distance'].median()
+            df.loc[missing_dist, 'Distance'] = df.loc[missing_dist, 'Suburb'].map(sub_median)
+    return df
+
+def drop_rows_with_missing_essentials(df):
+    # drop rows still missing essential fields required for indexing and queries
+    cols_present = [c for c in core_cols if c in df.columns]
+    before = len(df)
+    df = df.dropna(subset=cols_present)
+    after = len(df)
+    print(f'dropped_rows_missing_essentials: {before - after}')
+    return df
+
+### INSPIRED BY https://medium.com/@fz.iguenfer/iqr-rule-for-outliers-detection-6e9fcbcf2099
+def iqr_bounds(s, k=1.5):
+    # compute IQR bounds for outlier trimming
+    q1 = s.quantile(0.25)
+    q3 = s.quantile(0.75)
+    iqr = q3 - q1
+    lower = q1 - k * iqr
+    upper = q3 + k * iqr
+    return lower, upper
+
+def remove_outliers_iqr(df):
+    # remove outliers from key numeric fields using IQR METHOD
+    numeric_cols = [c for c in ['Price','rooms','Buildingarea','Distance','Bathroom','Car','Landsize'] if c in df.columns]
+    before = len(df)
+    for c in numeric_cols:
+        series = df[c].dropna()
+        if series.empty:
+            continue
+        low, high = iqr_bounds(series, k=1.5)
+        if c == 'rooms':
+            low = max(low, 0)
+        if c == 'Distance':
+            low = max(low, 0)
+        df = df[(df[c].isna()) | ((df[c] >= low) & (df[c] <= high))]
+    after = len(df)
+    print(f'dropped_outliers_total: {before - after}')
+    return df
+#### END INSPIRED CODE
+def constrain_value_ranges(df):
+    # apply constraints to get rid of dumbshit values.
+    if 'rooms' in df.columns:
+        df = df[(df['rooms'] >= 1) & (df['rooms'] <= 10)]
+    if 'Bathroom' in df.columns:
+        df = df[(df['Bathroom'].isna()) | ((df['Bathroom'] >= 0) & (df['Bathroom'] <= 8))]
+    if 'Car' in df.columns:
+        df = df[(df['Car'].isna()) | ((df['Car'] >= 0) & (df['Car'] <= 8))]
+    if 'Buildingarea' in df.columns:
+        df = df[(df['Buildingarea'].isna()) | (df['Buildingarea'] > 0)]
+    if 'Landsize' in df.columns:
+        df = df[(df['Landsize'].isna()) | (df['Landsize'] > 0)]
+    if 'Lattitude' in df.columns:
+        df = df[(df['Lattitude'].isna()) | ((df['Lattitude'] >= -90) & (df['Lattitude'] <= 90))]
+    if 'Longitude' in df.columns:
+        df = df[(df['Longitude'].isna()) | ((df['Longitude'] >= -180) & (df['Longitude'] <= 180))]
+    if 'Distance' in df.columns:
+        df = df[(df['Distance'].isna()) | (df['Distance'] >= 0)]
+    return df
+
+def create_area_conversions(df):
+    # keeping both metric and imperial cos USA USA USA USA USA USA USA USA USA ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸ðŸ¦…ðŸ’¥ðŸ‡ºðŸ‡¸
+    if 'Buildingarea' in df.columns:
+        df['buildingarea_m2'] = df['Buildingarea']
+        df['buildingarea_sqft'] = df['buildingarea_m2'] * 10.7639
+    return df
+
+def create_Price_density(df):
+    # a nice metric to check bang for buck
+    if 'Price' in df.columns and 'buildingarea_m2' in df.columns:
+        df['Price_per_m2'] = np.where(df['buildingarea_m2'] > 0, df['Price'] / df['buildingarea_m2'], np.nan)
+    if 'Price' in df.columns and 'buildingarea_sqft' in df.columns:
+        df['Price_per_sqft'] = np.where(df['buildingarea_sqft'] > 0, df['Price'] / df['buildingarea_sqft'], np.nan)
+    return df
+
+def optimize_memory(df):
+    # downcast numeric types and convert suitable strings to categories to improve memory footprint
+    for c in df.select_dtypes(include=['float64']).columns:
+        df[c] = pd.to_numeric(df[c], downcast='float')
+    for c in df.select_dtypes(include=['int64']).columns:
+        df[c] = pd.to_numeric(df[c], downcast='integer')
+    cat_candidates = ['Suburb','Type','councilarea','Regionname','METHOD','SellerG']
+    for c in cat_candidates:
+        if c in df.columns:
+            df[c] = df[c].astype('category')
+    return df
+
+def order_col(df):
+    # reorder columns for better readability
+    keep = []
+    keep += [c for c in ['Suburb','Address','Date','Type'] if c in df.columns]
+    keep += [c for c in ['rooms','Bedroom2','Bathroom','Car'] if c in df.columns]
+    keep += [c for c in ['Price','Distance','Buildingarea','buildingarea_m2','buildingarea_sqft','Landsize'] if c in df.columns]
+    keep += [c for c in ['Price_per_m2','Price_per_sqft'] if c in df.columns]
+    keep += [c for c in ['Lattitude','Longitude','Postcode','councilarea','Regionname','propertycount','Yearbuilt'] if c in df.columns]
+    df = df.loc[:, dict.fromkeys(keep).keys()]
+    return df
+
+
+def clean_melbourne_housing(input_path=input_path, output_path=output_path):
+    df = pd.read_csv(input_path, low_memory=False)
+    df = standardize_string(df)
+    df = date_time(df)
+    df = typecast_numeric(df)
+    df = standardize_type_values(df)
+    df = remove_dupes(df)
+    df = calculate_buildingarea(df)
+    df = calculate_distance(df)
+    df = drop_rows_with_missing_essentials(df)
+    df = constrain_value_ranges(df)
+    df = remove_outliers_iqr(df)
+    df = create_area_conversions(df)
+    df = create_Price_density(df)
+    df = optimize_memory(df)
+    df = order_col(df)
+    df.to_csv(output_path, index=False)
+    return df
+
+if __name__ == '__main__':
+    clean_melbourne_housing()
