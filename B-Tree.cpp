@@ -548,7 +548,7 @@ int main() {
    BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
  
     ifstream file("cleaned.csv");
-    if (!file.is_open()){
+    if (!file.is_open()) {
         cerr << "Error: can't open cleaned.csv\n";
         return 1;
     }
@@ -584,7 +584,7 @@ while(getline (file,line)){
             stoi(year), council, region, stoi(prop_count)); 
           tree.insert(p);
         count++;
-        if count % 1000 == 0)
+        if (count % 1000 == 0)
             cout << "loaded" << count << " records...\n";
         
 } catch (...){
@@ -643,6 +643,7 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
 
