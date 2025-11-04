@@ -505,6 +505,11 @@ int main() {
 RedBlackTree tree;
   
 ifstream file("cleaned.csv");
+    if (!file.is_open()){
+        cerr << "Error: can't open clean.csv\n";
+        return 1;
+    }
+    
 string line;
 getline(file, line);
 while(getline (file,line)){
@@ -534,23 +539,18 @@ while(getline (file,line)){
     tree.insert(n);
 }
 file.close();
-
-    
-
-
-
-
-    // Insert some sample properties
-    tree.insert(new Node(1, "Richmond", "123 Church St", 3, 'h', 850000, 3121,
-                        2, 3, 400, 150, 1920, "Yarra", "Melbourne", 100));
-    tree.insert(new Node(2, "Carlton", "45 Lygon St", 2, 'u', 650000, 3053,
-                        1, 2, 0, 80, 2010, "Melbourne", "Melbourne", 150));
-    tree.insert(new Node(3, "Hawthorn", "78 Glenferrie Rd", 4, 'h', 1200000, 3122,
-                        2, 4, 600, 200, 1930, "Boroondara", "Melbourne", 120));
-    tree.insert(new Node(4, "Richmond", "90 Bridge Rd", 2, 't', 720000, 3121,
-                        1, 2, 150, 100, 2015, "Yarra", "Melbourne", 100));
-    tree.insert(new Node(5, "Carlton", "12 Elgin St", 3, 'h', 950000, 3053,
-                        2, 3, 350, 140, 1925, "Melbourne", "Melbourne", 150));
+  
+    // // Insert some sample properties
+    // tree.insert(new Node(1, "Richmond", "123 Church St", 3, 'h', 850000, 3121,
+    //                     2, 3, 400, 150, 1920, "Yarra", "Melbourne", 100));
+    // tree.insert(new Node(2, "Carlton", "45 Lygon St", 2, 'u', 650000, 3053,
+    //                     1, 2, 0, 80, 2010, "Melbourne", "Melbourne", 150));
+    // tree.insert(new Node(3, "Hawthorn", "78 Glenferrie Rd", 4, 'h', 1200000, 3122,
+    //                     2, 4, 600, 200, 1930, "Boroondara", "Melbourne", 120));
+    // tree.insert(new Node(4, "Richmond", "90 Bridge Rd", 2, 't', 720000, 3121,
+    //                     1, 2, 150, 100, 2015, "Yarra", "Melbourne", 100));
+    // tree.insert(new Node(5, "Carlton", "12 Elgin St", 3, 'h', 950000, 3053,
+    //                     2, 3, 350, 140, 1925, "Melbourne", "Melbourne", 150));
 
     // Create a query
     PropertyQuery query;
@@ -583,5 +583,6 @@ file.close();
     return 0;
 
 }
+
 
 
