@@ -532,7 +532,7 @@ while(getline (file,line)){
     getline(ss, prop_count, ',');
 
     Node* n = new Node(
-        stoi(id), suburb, address stoi(rooms), type.empty() ? 'h' : type[0], 
+        stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
         stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
         stoi(land), stoi(building), 
         stoi(year), council, region, stoi(prop_count)); 
@@ -583,6 +583,7 @@ file.close();
     return 0;
 
 }
+
 
 
 
