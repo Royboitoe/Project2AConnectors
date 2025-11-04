@@ -502,17 +502,8 @@ public:
     }
 };
 int main() {
-
-auto start = chrono::high_resolution_clock::now();
-vector <Node*> results = tree.findKNearest(query, 10);
-auto end = chrono::high_resolution_clock::now();
-    
-double elapsed = chrono::duration<double, milli> (end - start).count();
-cout << "Search time: " << elapsed << " ms/n";
-
-tree.displayresults(results);
-
-    
+RedBlackTree tree;
+  
 ifstream file("cleaned.csv");
 string line;
 getline(file, line);
@@ -543,8 +534,11 @@ while(getline (file,line)){
     tree.insert(n);
 }
 file.close();
+
     
-    RedBlackTree tree;
+
+
+
 
     // Insert some sample properties
     tree.insert(new Node(1, "Richmond", "123 Church St", 3, 'h', 850000, 3121,
@@ -574,7 +568,14 @@ file.close();
     cout << "  Postcode: " << query.postcode << "\n";
 
     // Find 10 nearest properties
+ 
+    auto start = chrono::high_resolution_clock::now();
     vector<Node*> results = tree.findKNearest(query, 10);
+    auto end = chrono::high_resolution_clock::now();
+    
+    double elapsed = chrono::duration<double, milli> (end - start).count();
+    cout << "Search time: " << elapsed << " ms/n";
+
 
     // Display results
     tree.displayResults(results);
@@ -582,4 +583,5 @@ file.close();
     return 0;
 
 }
+
 
