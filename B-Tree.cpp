@@ -548,7 +548,7 @@ int main() {
    BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
  
     ifstream file("cleaned.csv");
-     if (!file.is_open()){
+    if (!file.is_open()){
         cerr << "Error: can't open clean.csv\n";
         return 1;
     }
@@ -576,7 +576,7 @@ while(getline (file,line)){
     getline(ss, region, ',');
     getline(ss, prop_count, ',');
     if (id.empty() || price.empty() || postcode.empty()) continue;
-    try(
+    try{
         Property* p = new Property(
             stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
             stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
@@ -640,6 +640,7 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
 
