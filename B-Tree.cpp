@@ -577,13 +577,13 @@ while(getline (file,line)){
     getline(ss, prop_count, ',');
     if (id.empty() || price.empty() || postcode.empty()) continue;
     try{
-        Property* p = new Property(
-            stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
-            stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
-            stoi(land), stoi(building), 
-            stoi(year), council, region, stoi(prop_count)); 
-tree.insert(p);
-count++;
+        Property* p = new Property(...);
+        tree.insert(p);
+        count++;
+            // stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
+            // stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
+            // stoi(land), stoi(building), 
+            // stoi(year), council, region, stoi(prop_count)); 
 } catch (...){
     continue;
     }
@@ -640,6 +640,7 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
 
