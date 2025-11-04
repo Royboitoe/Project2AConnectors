@@ -582,7 +582,7 @@ while(getline (file,line)){
             stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
             stoi(land), stoi(building), 
             stoi(year), council, region, stoi(prop_count)); 
-tree.insert(n);
+tree.insert(p);
 count++;
 } catch (...){
     continue;
@@ -640,6 +640,7 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
 
