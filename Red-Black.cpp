@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include <chrono>
 using namespace std;
 
 enum Color {RED, BLACK};
@@ -500,6 +502,20 @@ public:
     }
 };
 int main() {
+
+auto start = chrono::high_res_clock::now();
+auto results = tree.findKNearest(query, 10);
+auto end = chrono::high_res_clock::now();
+double elapsed = chrono::duration<double, milli> (end - start).count();
+cout << "Search time: " << elapsed << " ms\n";
+
+    
+ifstream file("cleaned.csv");
+string line;
+getline(file, line);
+while(getline (file,line)){
+    stringstream ss(line);
+}
     RedBlackTree tree;
 
     // Insert some sample properties
@@ -536,4 +552,5 @@ int main() {
     tree.displayResults(results);
 
     return 0;
+
 }
