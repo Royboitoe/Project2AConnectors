@@ -8,9 +8,16 @@
 #include <algorithm>
 #include <string>
 #include <limits>
+#include <fstream>
+#include <sstream>
+#include <chrono>
 using namespace std;
 
+
+
 // Property data structure
+
+
 struct Property {
     int id;
     string suburb;
@@ -539,6 +546,19 @@ public:
 
 // Example usage
 int main() {
+    
+auto start = chrono::high_res_clock::now();
+auto results = tree.findKNearest(query, 10);
+auto end = chrono::high_res_clock::now();
+double elapsed = chrono::duration<double, milli> (end - start).count();
+cout << "Search time: " << elapsed << " ms\n";
+
+    ifstream file("cleaned.csv");
+string line;
+getline(file, line);
+while(getline (file,line)){
+    stringstream ss(line);
+}
     BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
 
     // Insert sample properties
@@ -588,4 +608,5 @@ int main() {
     tree.displayResults(results);
 
     return 0;
+
 }
