@@ -549,7 +549,7 @@ int main() {
  
     ifstream file("cleaned.csv");
     if (!file.is_open()){
-        cerr << "Error: can't open clean.csv\n";
+        cerr << "Error: can't open cleaned.csv\n";
         return 1;
     }
     
@@ -577,13 +577,16 @@ while(getline (file,line)){
     getline(ss, prop_count, ',');
     if (id.empty() || price.empty() || postcode.empty()) continue;
     try{
-        Property* p = new Property(...);
-        tree.insert(p);
+        Property* p = new Property(
+            stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
+            stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
+            stoi(land), stoi(building), 
+            stoi(year), council, region, stoi(prop_count)); 
+          tree.insert(p);
         count++;
-            // stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
-            // stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
-            // stoi(land), stoi(building), 
-            // stoi(year), council, region, stoi(prop_count)); 
+        if count % 1000 == 0)
+            cout << "loaded" << count << " records...\n";
+        
 } catch (...){
     continue;
     }
@@ -640,6 +643,7 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
 
