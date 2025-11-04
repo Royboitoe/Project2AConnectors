@@ -13,7 +13,11 @@
 #include <chrono>
 using namespace std;
 
-
+    ifstream file("cleaned.csv");
+string line;
+getline(file, line);
+while(getline (file,line)){
+    stringstream ss(line);
 
 // Property data structure
 
@@ -546,18 +550,8 @@ public:
 
 // Example usage
 int main() {
-    
-auto start = chrono::high_res_clock::now();
-auto results = tree.findKNearest(query, 10);
-auto end = chrono::high_res_clock::now();
-double elapsed = chrono::duration<double, milli> (end - start).count();
-cout << "Search time: " << elapsed << " ms\n";
 
-    ifstream file("cleaned.csv");
-string line;
-getline(file, line);
-while(getline (file,line)){
-    stringstream ss(line);
+
 }
     BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
 
@@ -600,6 +594,13 @@ while(getline (file,line)){
     cout << "  Bathrooms: " << query.bathrooms << "\n";
     cout << "  Price: $" << query.price << "\n";
     cout << "  Postcode: " << query.postcode << "\n";
+        
+    auto start = chrono::high_resolution_clock::now();
+    auto results = tree.findKNearest(query, 10);
+    auto end = chrono::high_resolution_clock::now();
+    double elapsed = chrono::duration<double, milli> (end - start).count();
+    cout << "Search time: " << elapsed << " ms\n";
+
 
     // Find 10 nearest properties
     vector<Property*> results = tree.findKNearest(query, 10);
@@ -610,3 +611,4 @@ while(getline (file,line)){
     return 0;
 
 }
+
