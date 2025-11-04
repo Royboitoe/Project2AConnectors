@@ -550,33 +550,69 @@ public:
 
 // Example usage
 int main() {
+   BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
+   ifstream file("cleaned.csv");
+     if (!file.is_open()){
+        cerr << "Error: can't open clean.csv\n";
+        return 1;
+    }
+    
+string line;
+getline(file, line);
 
-
+int count = 0;
+while(getline (file,line)){
+    stringstream ss(line);
+    string id, suburb, address, rooms, type, price, postcode, bathrooms, bedrooms, land, building, year, council, region, prop_count;
+    getline(ss, id, ',');
+    getline(ss, suburb, ',');
+    getline(ss, address, ',');
+    getline(ss, rooms, ',');
+    getline(ss, type, ',');
+    getline(ss, price, ',');
+    getline(ss, postcode, ',');
+    getline(ss, bathrooms, ',');
+    getline(ss, bedrooms, ',');
+    getline(ss, land, ',');
+    getline(ss, building, ',');
+    getline(ss, year, ',');
+    getline(ss, council, ',');
+    getline(ss, region, ',');
+    getline(ss, prop_count, ',');
+    if (id.empty() || price.empty() || postcode.empty()) continue;
+    try(
+        Property* p = new Property(
+            stoi(id), suburb, address, stoi(rooms), type.empty() ? 'h' : type[0], 
+            stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
+            stoi(land), stoi(building), 
+            stoi(year), council, region, stoi(prop_count)); 
+tree.insert(n);
+count++;
+} catch (...){
+    continue;
+    }
 }
-    BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
-
-    // Insert sample properties
-    tree.insert(new Property(1, "Richmond", "123 Church St", 3, 'h', 850000, 3121,
-                            2, 3, 400, 150, 1920, "Yarra", "Melbourne", 100));
-    tree.insert(new Property(2, "Carlton", "45 Lygon St", 2, 'u', 650000, 3053,
-                            1, 2, 0, 80, 2010, "Melbourne", "Melbourne", 150));
-    tree.insert(new Property(3, "Hawthorn", "78 Glenferrie Rd", 4, 'h', 1200000, 3122,
-                            2, 4, 600, 200, 1930, "Boroondara", "Melbourne", 120));
-    tree.insert(new Property(4, "Richmond", "90 Bridge Rd", 2, 't', 720000, 3121,
-                            1, 2, 150, 100, 2015, "Yarra", "Melbourne", 100));
-    tree.insert(new Property(5, "Carlton", "12 Elgin St", 3, 'h', 950000, 3053,
-                            2, 3, 350, 140, 1925, "Melbourne", "Melbourne", 150));
-    tree.insert(new Property(6, "Fitzroy", "34 Brunswick St", 2, 'u', 700000, 3065,
-                            1, 2, 0, 90, 2012, "Yarra", "Melbourne", 100));
-    tree.insert(new Property(7, "Kew", "56 High St", 5, 'h', 1500000, 3101,
-                            3, 5, 800, 250, 1925, "Boroondara", "Melbourne", 120));
-    tree.insert(new Property(656383600,"Abbotsford","68 Studley St",2,'h',1143384,3067,2,1,126,431,1946,"Yarra City Council","Northern Metropolitan",4019));
-    tree.insert(new Property(223093719,"Abbotsford","85 Turner St",2,'h',1480000,3067,2,1,202,431,1946,"Yarra City Council","Northern Metropolitan",4019));
-    tree.insert(new Property(998104759,"Abbotsford","25 Bloomburg St",2,'h',1035000,3067,2,1,156,79,1900,"Yarra City Council","Northern Metropolitan",4019));
-    tree.insert(new Property(409803011,"Abbotsford","18/659 Victoria St",3,'u',1143384,3067,3,2,482,431,1946,"Yarra City Council","Northern Metropolitan",4019));
-
-    // Display tree structure
-    tree.displayTree();
+file.close();
+cout << "loaded " << count << " properties from cleaned.csv\n";
+    // // Insert sample properties
+    // tree.insert(new Property(1, "Richmond", "123 Church St", 3, 'h', 850000, 3121,
+    //                         2, 3, 400, 150, 1920, "Yarra", "Melbourne", 100));
+    // tree.insert(new Property(2, "Carlton", "45 Lygon St", 2, 'u', 650000, 3053,
+    //                         1, 2, 0, 80, 2010, "Melbourne", "Melbourne", 150));
+    // tree.insert(new Property(3, "Hawthorn", "78 Glenferrie Rd", 4, 'h', 1200000, 3122,
+    //                         2, 4, 600, 200, 1930, "Boroondara", "Melbourne", 120));
+    // tree.insert(new Property(4, "Richmond", "90 Bridge Rd", 2, 't', 720000, 3121,
+    //                         1, 2, 150, 100, 2015, "Yarra", "Melbourne", 100));
+    // tree.insert(new Property(5, "Carlton", "12 Elgin St", 3, 'h', 950000, 3053,
+    //                         2, 3, 350, 140, 1925, "Melbourne", "Melbourne", 150));
+    // tree.insert(new Property(6, "Fitzroy", "34 Brunswick St", 2, 'u', 700000, 3065,
+    //                         1, 2, 0, 90, 2012, "Yarra", "Melbourne", 100));
+    // tree.insert(new Property(7, "Kew", "56 High St", 5, 'h', 1500000, 3101,
+    //                         3, 5, 800, 250, 1925, "Boroondara", "Melbourne", 120));
+    // tree.insert(new Property(656383600,"Abbotsford","68 Studley St",2,'h',1143384,3067,2,1,126,431,1946,"Yarra City Council","Northern Metropolitan",4019));
+    // tree.insert(new Property(223093719,"Abbotsford","85 Turner St",2,'h',1480000,3067,2,1,202,431,1946,"Yarra City Council","Northern Metropolitan",4019));
+    // tree.insert(new Property(998104759,"Abbotsford","25 Bloomburg St",2,'h',1035000,3067,2,1,156,79,1900,"Yarra City Council","Northern Metropolitan",4019));
+    // tree.insert(new Property(409803011,"Abbotsford","18/659 Victoria St",3,'u',1143384,3067,3,2,482,431,1946,"Yarra City Council","Northern Metropolitan",4019));
 
     // Create a query
     PropertyQuery query;
@@ -596,19 +632,17 @@ int main() {
     cout << "  Postcode: " << query.postcode << "\n";
         
     auto start = chrono::high_resolution_clock::now();
-    auto results = tree.findKNearest(query, 10);
-    auto end = chrono::high_resolution_clock::now();
-    double elapsed = chrono::duration<double, milli> (end - start).count();
-    cout << "Search time: " << elapsed << " ms\n";
-
-
     // Find 10 nearest properties
     vector<Property*> results = tree.findKNearest(query, 10);
-
+    auto end = chrono::high_resolution_clock::now();
+    
+    double elapsed = chrono::duration<double, milli> (end - start).count();
+    cout << "Search time: " << elapsed << " ms\n";
     // Display results
     tree.displayResults(results);
 
     return 0;
 
 }
+
 
