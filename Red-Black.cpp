@@ -503,11 +503,14 @@ public:
 };
 int main() {
 
-auto start = chrono::high_res_clock::now();
-auto results = tree.findKNearest(query, 10);
-auto end = chrono::high_res_clock::now();
+auto start = chrono::high_resolution_clock::now();
+vector <Node*> results = tree.findKNearest(query, 10);
+auto end = chrono::high_resolution_clock::now();
+    
 double elapsed = chrono::duration<double, milli> (end - start).count();
-cout << "Search time: " << elapsed << " ms\n";
+cout << "Search time: " << elapsed << " ms/n";
+
+tree.displayresults(results);
 
     
 ifstream file("cleaned.csv");
@@ -515,7 +518,32 @@ string line;
 getline(file, line);
 while(getline (file,line)){
     stringstream ss(line);
+    string id, suburb, address, rooms, type, price, postcode, bathrooms, bedrooms, land, building, year, council, region, prop_count;
+    getline(ss, id, ',');
+    getline(ss, suburb, ',');
+    getline(ss, address, ',');
+    getline(ss, rooms, ',');
+    getline(ss, type, ',');
+    getline(ss, price, ',');
+    getline(ss, postcode, ',');
+    getline(ss, bathrooms, ',');
+    getline(ss, bedrooms, ',');
+    getline(ss, land, ',');
+    getline(ss, building, ',');
+    getline(ss, year, ',');
+    getline(ss, council, ',');
+    getline(ss, region, ',');
+    getline(ss, prop_count, ',');
+
+    Node* n = new Node(
+        stoi(id), suburb, address stoi(rooms), type.empty() ? 'h' : type[0], 
+        stoi(price), stoi(postcode), stoi(bathrooms), stoi(bedrooms), 
+        stoi(land), stoi(building), 
+        stoi(year), council, region, stoi(prop_count)); 
+    tree.insert(n);
 }
+file.close();
+    
     RedBlackTree tree;
 
     // Insert some sample properties
@@ -554,3 +582,4 @@ while(getline (file,line)){
     return 0;
 
 }
+
