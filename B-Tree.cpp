@@ -13,11 +13,6 @@
 #include <chrono>
 using namespace std;
 
-    ifstream file("cleaned.csv");
-string line;
-getline(file, line);
-while(getline (file,line)){
-    stringstream ss(line);
 
 // Property data structure
 
@@ -551,7 +546,8 @@ public:
 // Example usage
 int main() {
    BTree tree(3);  // Minimum degree t = 3 (each node has 2-5 keys)
-   ifstream file("cleaned.csv");
+ 
+    ifstream file("cleaned.csv");
      if (!file.is_open()){
         cerr << "Error: can't open clean.csv\n";
         return 1;
@@ -644,5 +640,6 @@ cout << "loaded " << count << " properties from cleaned.csv\n";
     return 0;
 
 }
+
 
 
