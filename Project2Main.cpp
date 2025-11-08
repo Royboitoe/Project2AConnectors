@@ -1,9 +1,23 @@
 #include <iostream>
 #include <string>
+#include <chrono>
+#include <iostream>
+#include <thread> 
 
 using namespace std;
 
 int main() {
+    auto start = std::chrono::high_resolution_clock::now();
+
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+    std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
+    return 0;
+    
     int option = 0;
     int price = 0;
     int bedroom = 0;
@@ -138,24 +152,12 @@ int main() {
 //TIMER
 
 //cout << "timer: " << endl;
-#include <chrono>
-#include <iostream>
-#include <thread> // For std::this_thread::sleep_for
 
-int main() {
-    auto start = std::chrono::high_resolution_clock::now();
 
-    // Your code to be timed
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
-
-    std::cout << "Time taken: " << duration.count() << " seconds" << std::endl;
-    return 0;
-}
 
 // cout<< "bathroom:" get line <<endl;
 // cout<< "price out of range" <<endl;
 
 // cout<< "invalid synthx" <<endl;
+
