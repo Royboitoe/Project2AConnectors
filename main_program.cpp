@@ -885,7 +885,7 @@ int main() {
 
     RedBlackTree RDB;
     BTree BT;
-    generateDataFromCSV(RDB,BT, "C:/Users/wmark/Documents/Fall 2025/COP3530 - DSA/Project 2/CPP Programs/cleaned_pt2.csv");
+    generateDataFromCSV(RDB,BT, "cleaned_pt2.csv");
 
     vector<Node*> RDBhousevec;
     vector<Property*> BTreehousevec;
@@ -989,4 +989,5 @@ int main() {
     }
 
     return 0;
+
 }
